@@ -6,7 +6,7 @@ The theoretical underpinnings and research design of the survey experiment used 
 
 ## Data and results
 
-* [Expert Survey ] Full, cleanded data with explanatory labels is available here: data_cleaned_labeled.csv
+* [Expert Survey] Full, cleanded data with explanatory labels is available here: data_cleaned_labeled.csv
 
 * Data used in analysis and production of figures 1-5 is available here: multiling_variables.csv
 
