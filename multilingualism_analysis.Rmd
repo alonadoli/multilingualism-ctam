@@ -1,0 +1,403 @@
+---
+title: "multiligualism_ctam_analysis"
+author: Alona Dolinsky and Martijn Schoonvelde
+output: html_document
+date: "`r Sys.Date()`"
+---
+
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(echo = TRUE)
+
+```
+
+# Required Packages &amp; Reproducibility
+
+```{r warning = FALSE, message = FALSE}
+
+rm(list=ls())
+
+source(here::here("functions.R"))
+
+```
+
+# Load data and tidy it up
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+
+data <- read_csv("multiling_variables.csv")
+
+```
+
+H1a
+Researchers who solely study English language materials are less concerned about validity of CTAM than:
+ 1) researchers who study other languages; and 
+ 2) especially those who conduct inter-lingually comparative research.
+
+Figure 1:
+
+```{r point_range text_langXvalidity}
+
+tmp_val <- data %>% 
+  dplyr::select(text_lang, CONval) %>%
+  drop_na() %>%
+  group_by(text_lang) %>%
+  summarise(mean_CONval = mean(CONval), 
+            n = n(),
+            sd = sd(CONval),
+            se = sd / sqrt(n)) 
+
+tmp_val_comp <- data %>% 
+  filter(COMP == 1) %>% 
+  dplyr::select(text_lang, CONval) %>%
+  drop_na() %>%
+  group_by(text_lang) %>%
+  summarise(mean_CONval = mean(CONval), 
+            n = n(),
+            sd = sd(CONval),
+            se = sd / sqrt(n)) 
+
+(validity_pointrange <- tmp_val %>%
+    mutate(text_lang = fct_relevel(text_lang,
+                                   "English",
+                                   "Other than English",
+                                   "Multilingual")) %>%
+    ggplot(aes(x = text_lang, y = mean_CONval)) +
+    geom_pointrange(aes(ymin = mean_CONval - 1.96*se,
+                        ymax = mean_CONval + 1.96*se)) + 
+    theme_minimal() +
+    scale_y_continuous(breaks = seq(0, 4, by = 0.5), limits = c(0, 4)) +
+    labs(y = "Mean Concern for Validity", x = "Language of Studied Text") +
+    theme(axis.text.y = element_text(size = 11)) +
+    theme(axis.text.x = element_text(size = 11)) +
+    theme(axis.title.x = element_text(size = 11, margin = margin(t = 15))) +
+    theme(axis.title.y = element_text(size = 11, margin = margin(r = 15))) +
+    theme(axis.line.x = element_line(linewidth = 0.1, color = "gray54")) +
+    theme(axis.line.y = element_line(linewidth = 0.1, color = "gray54")) +
+    theme(panel.grid.major.x = element_line(linewidth = 0.6, linetype = "dotted")) +
+    theme(panel.grid.minor.x = element_line(linewidth = 0.6, linetype = "dotted")) +
+    theme(panel.grid.major.y = element_line(linewidth = 0.6, linetype = "dotted")) +
+    theme(panel.grid.minor.y = element_line(linewidth = 0.6, linetype = "dotted")) +
+    coord_flip())
+
+ggsave(validity_pointrange, 
+       file = "plots/Figure1_H1a.PDF",
+       width = 6, 
+       height = 4)
+
+```
+
+H1b
+Researchers who solely study English language materials are less concerned about availability of suitable CTAM than:
+ 1) researchers who study other languages; and 
+ 2) especially those who conduct inter-lingually comparative research.
+
+Figure 2:
+
+```{r point_range text_langXavailability}
+
+tmp_ava <- data %>% 
+  dplyr::select(text_lang, CONava) %>%
+  drop_na() %>%
+  group_by(text_lang) %>%
+  summarise(mean_CONava = mean(CONava), 
+            n = n(),
+            sd = sd(CONava),
+            se = sd / sqrt(n)) 
+
+tmp_ava_comp <- data %>%
+  filter(COMP == 1) %>% 
+  dplyr::select(text_lang, CONava) %>%
+  drop_na() %>%
+  group_by(text_lang) %>%
+  summarise(mean_CONava = mean(CONava), 
+            n = n(),
+            sd = sd(CONava),
+            se = sd / sqrt(n)) 
+
+(availability_pointrange <- tmp_ava %>%
+    mutate(text_lang = fct_relevel(text_lang,
+                                   "English",
+                                   "Other than English",
+                                   "Multilingual")) %>%
+    ggplot(aes(x = text_lang, y = mean_CONava)) +
+    geom_pointrange(aes(ymin = mean_CONava - 1.96*se,
+                        ymax = mean_CONava + 1.96*se)) + 
+    theme_minimal() +
+    scale_y_continuous(breaks = seq(0, 4, by = 0.5), limits = c(0, 4)) +
+    labs(y = "Mean Concern for Availability", x = "Language of Studied Text") +
+    theme(axis.text.y = element_text(size = 11)) +
+    theme(axis.text.x = element_text(size = 11)) +
+    theme(axis.title.x = element_text(size = 11, margin = margin(t = 15))) +
+    theme(axis.title.y = element_text(size = 11, margin = margin(r = 15))) +
+    theme(axis.line.x = element_line(linewidth = 0.1, color = "gray54")) +
+    theme(axis.line.y = element_line(linewidth = 0.1, color = "gray54")) +
+    theme(panel.grid.major.x = element_line(linewidth = 0.6, linetype = "dotted")) +
+    theme(panel.grid.minor.x = element_line(linewidth = 0.6, linetype = "dotted")) +
+    theme(panel.grid.major.y = element_line(linewidth = 0.6, linetype = "dotted")) +
+    theme(panel.grid.minor.y = element_line(linewidth = 0.6, linetype = "dotted")) +
+    coord_flip())
+
+ggsave(availability_pointrange, 
+       file = "plots/Figure2_H1b.PDF",
+       width = 6, 
+       height = 4)
+
+```
+
+H1c
+
+Researchers who solely study English language materials are more likely to use CTAM than:
+ 1) researchers who study other languages; and 
+ 2) especially those who conduct inter-lingually comparative research.
+
+Independent variable: Use of Computational Text Analysis
+
+ '1' = "Don't use it",    
+ '2' = "Only use it when collaborating",    
+ '3' = "Rarely use it",    
+ '4' = "Regularly use it",    
+ '5' = "Primarily use it"
+
+Figure 3: 
+
+```{r point_range text_langXctam_use}
+
+tmp_ctam <- data %>% 
+  dplyr::select(text_lang, Quant_CTAM) %>%
+  drop_na() %>%
+  group_by(text_lang) %>%
+  summarise(mean_Quant_CTAM = mean(Quant_CTAM), 
+            n = n(),
+            sd = sd(Quant_CTAM),
+            se = sd / sqrt(n)) 
+
+tmp_ctam_comp <- data %>% 
+  filter(COMP == 1) %>% 
+  dplyr::select(text_lang, Quant_CTAM) %>%
+  drop_na() %>%
+  group_by(text_lang) %>%
+  summarise(mean_Quant_CTAM = mean(Quant_CTAM), 
+            n = n(),
+            sd = sd(Quant_CTAM),
+            se = sd / sqrt(n)) 
+
+(CTAMuse_pointrange <- tmp_ctam %>%
+    mutate(text_lang = fct_relevel(text_lang,
+                                   "English",
+                                   "Other than English",
+                                   "Multilingual")) %>%
+    ggplot(aes(x = text_lang, y = mean_Quant_CTAM)) +
+    geom_pointrange(aes(ymin = mean_Quant_CTAM - 1.96*se,
+                        ymax = mean_Quant_CTAM + 1.96*se)) + 
+    theme_minimal() +
+    scale_y_continuous(breaks = seq(0, 4, by = 0.5), limits = c(0, 4)) +
+    labs(y = "Mean Use of Computational Text Analysis", 
+         x = "Language of Studied Text") +
+    theme(axis.text.y = element_text(size = 11)) +
+    theme(axis.text.x = element_text(size = 11)) +
+    theme(axis.title.x = element_text(size = 11, margin = margin(t = 15))) +
+    theme(axis.title.y = element_text(size = 11, margin = margin(r = 15))) +
+    theme(axis.line.x = element_line(linewidth = 0.1, color = "gray54")) +
+    theme(axis.line.y = element_line(linewidth = 0.1, color = "gray54")) +
+    theme(panel.grid.major.x = element_line(linewidth = 0.6, linetype = "dotted")) +
+    theme(panel.grid.minor.x = element_line(linewidth = 0.6, linetype = "dotted")) +
+    theme(panel.grid.major.y = element_line(linewidth = 0.6, linetype = "dotted")) +
+    theme(panel.grid.minor.y = element_line(linewidth = 0.6, linetype = "dotted")) +
+    coord_flip())
+
+ggsave(CTAMuse_pointrange, 
+       file = "plots/Figure3_H1c.PDF",
+       width = 6, 
+       height = 4)
+
+```
+
+H2
+
+Non-English native speaking researchers who use CTAM are more likely to study English language material than non-English native speaking researchers who do not use CTAM.
+
+Figure 4:
+
+```{r H2}
+
+df <- data %>% 
+  mutate(english_text = ifelse(text_lang == "English", 1,
+                               ifelse(text_lang == "Other than English", 0, NA)),
+         USEctam = dplyr::recode(Quant_CTAM, `1` = 0, `2` = 0, `3` = 0, `4` = 1, 
+                          `5` = 1),
+         USEctam = dplyr::recode(USEctam, 
+                          "0" = "Don't use CTAM", 
+                          "1" = "Use CTAM"),
+         USEctam = as.factor(USEctam),
+         spoken_lang = dplyr::recode(spoken_lang, 
+                              "1" = "Non Native English Speaker",
+                              "0" = "Native English Speaker"),
+         spoken_lang = as.factor(spoken_lang)) 
+
+(tmp <- df %>% 
+    group_by(spoken_lang, USEctam) %>% 
+    summarise(text_language = mean(english_text, na.rm = TRUE)) %>% 
+    drop_na())
+
+(H2_plot <- tmp %>% 
+    ggplot() +
+    aes(x = spoken_lang, y = text_language) +
+    geom_line(aes(group = USEctam, linetype = USEctam)) +
+    geom_point() +
+    labs(x = "", 
+         y = "Fraction of respondents who rely on English language texts") +
+    theme_minimal() +
+    scale_y_continuous(breaks = seq(0, 1, by = 0.2), limits = c(0, 1)) +
+    theme(axis.text.y = element_text(size = 10, margin=margin(r=5))) +
+    theme(axis.text.x = element_text(size = 10, margin=margin(t=5))) +
+    theme(axis.title.x = element_blank()) +
+    theme(axis.title.y = element_text(size = 9, margin=margin(r=15))) +
+    theme(axis.ticks = element_line(linewidth = 0.3)) +
+    scale_color_discrete(name = "Use of CTAM") +
+    theme(legend.position = "right",
+          legend.title = element_blank(),
+          legend.text = element_text(size = 9),
+          legend.key.size = unit(0.5, "cm")))
+
+ggsave(H2_plot, 
+       file = "plots/Figure4_H2.PDF",
+       width = 6, 
+       height = 4)
+
+```
+
+Analysis beyond the original pre-registered hypotheses:
+
+Number of validation strategies
+
+Figure 5:
+
+```{r}
+
+tmp_NumValidation <- data %>% 
+  dplyr::select(text_lang, VALn) %>%
+  drop_na() %>%
+  group_by(text_lang) %>%
+  summarise(mean_VALn = mean(VALn), 
+            n = n(),
+            sd = sd(VALn),
+            se = sd / sqrt(n)) 
+
+(NumValidation_pointrange <- tmp_NumValidation %>%
+    mutate(text_lang = fct_relevel(text_lang,
+                                   "English", #bottom of order
+                                   "Other than English",
+                                   "Multilingual")) %>% #top of order
+    ggplot(aes(x = text_lang, y = mean_VALn)) +
+    geom_pointrange(aes(ymin = mean_VALn - 1.96*se,
+                        ymax = mean_VALn + 1.96*se)) + 
+    theme_minimal() +
+    scale_y_continuous(breaks = seq(0, 4, by = 0.5), limits = c(0, 4)) +
+    labs(y = "Mean Number of Validation Strategies", 
+         x = "Language of Studied Text") +
+    theme(axis.text.y = element_text(size = 11)) +
+    theme(axis.text.x = element_text(size = 11)) +
+    theme(axis.title.x = element_text(size = 11, margin = margin(t = 15))) +
+    theme(axis.title.y = element_text(size = 11, margin = margin(r = 15))) +
+    theme(axis.line.x = element_line(linewidth = 0.1, color = "gray54")) +
+    theme(axis.line.y = element_line(linewidth = 0.1, color = "gray54")) +
+    theme(panel.grid.major.x = element_line(linewidth = 0.6, linetype = "dotted")) +
+    theme(panel.grid.minor.x = element_line(linewidth = 0.6, linetype = "dotted")) +
+    theme(panel.grid.major.y = element_line(linewidth = 0.6, linetype = "dotted")) +
+    theme(panel.grid.minor.y = element_line(linewidth = 0.6, linetype = "dotted")) +
+    coord_flip())
+
+ggsave(NumValidation_pointrange, 
+       file = "plots/Figure5_NumValidation.PDF",
+       width = 6, 
+       height = 4)
+
+```
+
+Potential reasons that researchers whose work relied on multiple languages may refrain from studying any additional languages. For each of these reasons, respondents were asked to indicate whether they considered them to be major, minor, or not applicable to their own case. 
+
+Figure 6:
+
+```{r}
+
+#read in data
+survey <- read_csv("data_cleaned_labeled.csv")
+
+
+#plot disitribution over multilingualism items
+
+survey %>% 
+  dplyr::select(Q7_1:Q7_8) %>%
+  na.omit -> multilingualism_items
+
+multilingualism_items %>%
+  pivot_longer(cols = Q7_1:Q7_8,
+               names_to = "item") %>%
+  mutate(answer = factor(value)) %>%
+  filter(answer != "No multiple languages") %>%
+  dplyr::select(item, answer) %>%
+  group_by(item, answer) %>%
+  tally() %>% 
+  arrange(item) %>%
+  mutate(answer = factor(answer, 
+                         levels = c("No reason", "Minor reason", "Major reason"))) %>%
+  mutate(answer_label = factor(answer, 
+                               levels = c("Major reason", "Minor reason", "No reason"))) %>%
+  mutate(nlabel = cumsum(n) - n/2) %>%
+  ungroup() -> multilingualism_items
+
+multilingualism_items$item <- dplyr::recode(multilingualism_items$item,
+                                            Q7_1 = "I don't speak these languages well enough",
+                                            Q7_2 = "It is less relevant for my research/not worth the additional effort",
+                                            Q7_3 = "It is difficult to access textual material in these languages",
+                                            Q7_4 = "It is difficult to find qualified collaborators/assistants for these languages",
+                                            Q7_5 = "It is difficult to find suitable tools for these languages",
+                                            Q7_6 = "The quality of machine translation is insufficient for these languages",
+                                            Q7_7 = "It is difficult to compare between languages",
+                                            Q7_8 = "It is difficult to finance a multilingual project")
+
+multilingualism_items$item <- factor(multilingualism_items$item, 
+                                     levels = c("It is difficult to finance a multilingual project",
+                                                "The quality of machine translation is insufficient for these languages",
+                                                "It is difficult to compare between languages",
+                                                "It is difficult to find suitable tools for these languages",
+                                                "It is difficult to access textual material in these languages",
+                                                "It is difficult to find qualified collaborators/assistants for these languages",
+                                                "It is less relevant for my research/not worth the additional effort",
+                                                "I don't speak these languages well enough"))
+
+cbp1 <- c("#999999", "#E69F00", "#56B4E9", "#009E73",
+          "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
+(p1 <- ggplot(multilingualism_items, aes(x = item, y = n, fill = answer)) +
+    geom_col(position = "stack", color = "white", size = 1, width = 1) + 
+    geom_text( aes(y = nlabel, label = n), 
+               color = "black", 
+               size = 10/.pt) +  
+    scale_x_discrete(expand = c(0, 0), name = NULL) +
+    scale_y_continuous(expand = c(0, 0), breaks = NULL, name = NULL) +
+    scale_fill_manual(values = cbp1,
+                      name = NULL) +
+    coord_cartesian(clip = "off") +
+    coord_flip() + 
+    theme(
+      panel.grid.major = element_blank(),
+      axis.ticks = element_blank(),
+      axis.text = element_text(size = 10),
+      legend.position = "bottom",
+      legend.justification = "center",
+      legend.background = element_rect(fill = "white"),
+      legend.spacing.x = grid::unit(4.5, "pt"),
+      legend.spacing.y = grid::unit(0, "cm"),
+      legend.box.spacing = grid::unit(7, "pt")
+      ))
+
+ggsave(p1, 
+       file = "plots/Figure6_MultilingualismReasons.PDF",
+       width = 8, 
+       height = 6)
+
+```
+
